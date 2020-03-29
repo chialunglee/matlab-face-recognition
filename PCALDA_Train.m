@@ -1,4 +1,4 @@
-function [FFACE, PCA, pcaTotalFACE] = PCALDA_Train
+function [FFACE, PCA, pcaTotalFACE, tempSSW] = PCALDA_Train
 
 people = 40;
 % 每個樣本取 5
@@ -76,10 +76,22 @@ for i = 1:1:withinsample * people
     pcaTotalFACE = [pcaTotalFACE; tempFACE];
 end
 
-% cov = [];
-for i = 1:1:people
-    withinFACE = pcaTotalFACE(i:i+4, :);
-    groupmean = mean(withinFACE);
-    fprintf('%iHello\n', i);
-    disp(withinFACE);
+% groupset 5 * 50
+% pcaTotalFACE(1:1:5, :)
+tempSSW = zeros(50, 50);
+allGroupMean = [];
+for i = 1:withinsample:people * withinsample
+    tempMean = mean(pcaTotalFACE(i:1:i+4, :));
+    allGroupMean = [allGroupMean; tempMean];
+    pcaTotalFACE = pcaTotalFACE - tempMean;
+    tempSSW = tempSSW + (pcaTotalFACE' * pcaTotalFACE);
 end
+
+oldAllGroupMean = allGroupMean;
+meanOfAllGroupMean = mean(allGroupMean);
+allGroupMean = allGroupMean - meanOfAllGroupMean;
+SSB = allGroupMean' * allGroupMean;
+
+finalCov = inv(tempSSW) * SSB;
+
+[finalEigVector, finalEigValue] = eig(finalCov);
