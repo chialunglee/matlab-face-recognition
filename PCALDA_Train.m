@@ -1,18 +1,18 @@
 function [FFACE, PCA, pcaTotalFACE, tempSSW] = PCALDA_Train
 
 people = 40;
-% ¨C­Ó¼Ë¥»¨ú 5
+% æ¯å€‹æ¨£æœ¬å– 5
 withinsample = 5;
-% 32 * 32 == 1024 ­°ºû¨ì 50
+% 32 * 32 == 1024 é™ç¶­åˆ° 50
 principlenum = 50;
-% ­°ºû«áªº°V½m¼Ë¥»
+% é™ç¶­å¾Œçš„è¨“ç·´æ¨£æœ¬
 FFACE = [];
-% Åª¹Ï
+% è®€åœ–
 for k = 1:1:people
     for m = 1:2:10
         matchstring = ['ORL3232' '\' num2str(k) '\' num2str(m) '.bmp'];
         matchX = imread(matchstring);
-        % matchX ¬O 32 * 32 ªº°}¦C
+        % matchX æ˜¯ 32 * 32 çš„é™£åˆ—
         matchX = double(matchX);
         if (k == 1 && m == 1)
             [row, col] = size(matchX);
@@ -21,13 +21,13 @@ for k = 1:1:people
         %--arrange the image into a vector
         for n = 1:row
             % ':' means all
-            % ',' ©¹¥kÃä±µ
+            % ',' å¾€å³é‚Šæ¥
             matchtempF = [matchtempF, matchX(n, :)];
         end
-        % ';' ©¹¤U­±±µ
-        % FFACE ÅÜ¦¨ 200 * 1024
-        % MATLAB ¨D¥X¨Óªº eigenvector ¬Oª½ªº
-        % ©Ò¥H§Ú­Ì¸ê®Æ¥Î¦¨¾îªº¡A¬°¤F­n¬Û­¼
+        % ';' å¾€ä¸‹é¢æ¥
+        % FFACE è®Šæˆ 200 * 1024
+        % MATLAB æ±‚å‡ºä¾†çš„ eigenvector æ˜¯ç›´çš„
+        % æ‰€ä»¥æˆ‘å€‘è³‡æ–™ç”¨æˆæ©«çš„ï¼Œç‚ºäº†è¦ç›¸ä¹˜
         FFACE = [FFACE; matchtempF];
     end
 end
@@ -43,15 +43,15 @@ end
 % pcaSST = cov(zeromeanTotalFACE);
 % "'" Transpose
 % SST == SSB + SSW
-% ¥ş³¡ÅÜ²§¶qµ¥©ó²Õ¶¡ÅÜ²§¶q¥[¤W²Õ¤ºÅÜ²§¶q
+% å…¨éƒ¨è®Šç•°é‡ç­‰æ–¼çµ„é–“è®Šç•°é‡åŠ ä¸Šçµ„å…§è®Šç•°é‡
 SST = zeromeanTotalFACE' * zeromeanTotalFACE;
-% PCA ¬OÅÜ¼Æ¦WºÙ¬ö¿ı eigenvector
-% latent ¬ö¿ı eigenvalue
+% PCA æ˜¯è®Šæ•¸åç¨±ç´€éŒ„ eigenvector
+% latent ç´€éŒ„ eigenvalue
 [PCA, latent] = eig(SST);
-% latent ¥u¦³¹ï¨¤½u¦³­È¡A¨ä¥L³£¬O 0
-% §â latent ¦s¦¨¤@ºû
+% latent åªæœ‰å°è§’ç·šæœ‰å€¼ï¼Œå…¶ä»–éƒ½æ˜¯ 0
+% æŠŠ latent å­˜æˆä¸€ç¶­
 eigvalue = diag(latent);
-% §ä¤jªº eigenvalue
+% æ‰¾å¤§çš„ eigenvalue
 % ex. [5, 2, 1, 4] index [1, 2, 3, 4]
 % junk == [5, 4, 2, 1]
 % index == [1, 4, 2, 3]
@@ -62,14 +62,14 @@ eigvalue = diag(latent);
 % PCA
 % 0.1 0.1
 % 0.2 0.8
-% ¹ï©Ò¦³ eigenvector °µ±Æ§Ç
+% å°æ‰€æœ‰ eigenvector åšæ’åº
 PCA = PCA(:, index);
 eigvalue = eigvalue(index);
 
 % projectPCA 1024 * 50
 projectPCA = PCA(:, 1:principlenum);
 pcaTotalFACE = [];
-% 200 µ§¸ê®Æ¥ş³¡³Q­°¦¨ 50 ºû
+% 200 ç­†è³‡æ–™å…¨éƒ¨è¢«é™æˆ 50 ç¶­
 for i = 1:1:withinsample * people
     tempFACE = zeromeanTotalFACE(i, :);
     tempFACE = tempFACE * projectPCA;
