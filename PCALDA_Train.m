@@ -1,4 +1,4 @@
-function [FFACE, PCA, pcaTotalFACE, tempSSW] = PCALDA_Train
+function [FFACE, PCA, pcaTotalFACE, tempSSW, finalEigVector, finalEigValue] = PCALDA_Train
 
 people = 40;
 % 每個樣本取 5
@@ -10,8 +10,8 @@ FFACE = [];
 % 讀圖
 for k = 1:1:people
     for m = 1:2:10
-        matchstring = ['ORL3232' '\' num2str(k) '\' num2str(m) '.bmp'];
-        matchX = imread(matchstring);
+        fileName = ['ORL3232' '\' num2str(k) '\' num2str(m) '.bmp'];
+        matchX = imread(fileName);
         % matchX 是 32 * 32 的陣列
         matchX = double(matchX);
         if (k == 1 && m == 1)
@@ -81,9 +81,9 @@ end
 tempSSW = zeros(50, 50);
 allGroupMean = [];
 for i = 1:withinsample:people * withinsample
-    tempMean = mean(pcaTotalFACE(i:1:i+4, :));
+    tempMean = mean(pcaTotalFACE(i:1:i + withinsample - 1, :));
     allGroupMean = [allGroupMean; tempMean];
-    pcaTotalFACE = pcaTotalFACE - tempMean;
+    pcaTotalFACE(i:1:i+4, :) = pcaTotalFACE(i:1:i+4, :) - tempMean;
     tempSSW = tempSSW + (pcaTotalFACE' * pcaTotalFACE);
 end
 
@@ -95,3 +95,21 @@ SSB = allGroupMean' * allGroupMean;
 finalCov = inv(tempSSW) * SSB;
 
 [finalEigVector, finalEigValue] = eig(finalCov);
+
+% 沒 zeromean
+%{
+for i=1:withinsample:withinsample*people
+    withinFACE = pcaTotalFACE(i:i + withinsample - 1, :);
+    if (i == 1)
+        SW = withinFACE' * withinFACE;
+        ClassMean = mean(withinFACE);
+    end
+    if (i > 1)
+        SW = SW + withinFACE' * withinFACE;
+        ClassMean = [ClassMean;mean(withinFACE)];
+    end
+end
+pcaTotalmean = mean(pcaTotalFACE);
+SB = ClassMean' * ClassMean;
+%}
+
