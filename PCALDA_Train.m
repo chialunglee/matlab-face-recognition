@@ -32,14 +32,8 @@ for k = 1:1:people
     end
 end
 % output 1 * 1024
-TotalMeanFACE = mean(FFACE);
-zeromeanTotalFACE = FFACE;
+zeromeanTotalFACE = calculateZeroMean(FFACE);
 
-for i = 1:1:withinsample * people
-    for j = 1:1:(row) * (col)
-        zeromeanTotalFACE(i, j) = zeromeanTotalFACE(i, j) - TotalMeanFACE(j);
-    end
-end
 % pcaSST = cov(zeromeanTotalFACE);
 % "'" Transpose
 % SST == SSB + SSW
@@ -82,14 +76,12 @@ tempSSW = zeros(50, 50);
 allGroupMean = [];
 for i = 1:withinsample:people * withinsample
     tempMean = mean(pcaTotalFACE(i:1:i + withinsample - 1, :));
+    pcaTotalFACE(i:1:i + withinsample - 1, :) = calculateZeroMean(pcaTotalFACE(i:1:i + withinsample - 1, :));
     allGroupMean = [allGroupMean; tempMean];
-    pcaTotalFACE(i:1:i+4, :) = pcaTotalFACE(i:1:i+4, :) - tempMean;
-    tempSSW = tempSSW + (pcaTotalFACE' * pcaTotalFACE);
+    tempSSW = tempSSW + (pcaTotalFACE(i:1:i + withinsample - 1, :)' * pcaTotalFACE(i:1:i + withinsample - 1, :));
 end
 
-oldAllGroupMean = allGroupMean;
-meanOfAllGroupMean = mean(allGroupMean);
-allGroupMean = allGroupMean - meanOfAllGroupMean;
+allGroupMean = calculateZeroMean(allGroupMean);
 SSB = allGroupMean' * allGroupMean;
 
 finalCov = inv(tempSSW) * SSB;
