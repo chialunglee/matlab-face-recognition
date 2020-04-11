@@ -1,38 +1,17 @@
 function [FFACE, PCA, pcaTotalFACE, tempSSW, finalEigVector, finalEigValue] = PCALDA_Train()
+    % 有 40 個人
     people = 40;
     % 每個樣本取 5
     withinsample = 5;
     % 32 * 32 == 1024 降維到 50
     principlenum = 50;
     fileName = ['ORL3232' '\' '1' '\' '1' '.bmp'];
-    image1 = imread(fileName);
-    [row1, col1] = size(image1);
+    [imageHeight, imageWidth] = size(imread(fileName));
+    % 訓練資料 startFrom == 1, 測試資料 startFrom == 2
+    startFrom = 1;
     % 降維後的訓練樣本
     % FFACE 變成 200 * 1024
-    FFACE = zeros(people * withinsample, row1 * col1);
-    % 讀圖
-    for k = 1:1:people
-        for m = 1:2:10
-            fileName = ['ORL3232' '\' num2str(k) '\' num2str(m) '.bmp'];
-            imageX = imread(fileName);
-            % imageX 是 32 * 32 的陣列
-            imageX = double(imageX);
-            if (k == 1 && m == 1)
-                [row, col] = size(imageX);
-            end
-            % 每一個圖片從 32 * 32 變成 1 * 1024
-            matchtempF = zeros(1, row * col);
-            % arrange the image into a vector
-            for n = 1:1:row
-                for p = 1:1:col
-                    matchtempF((n - 1) * col + p) = imageX(n, p);
-                end
-            end
-            % MATLAB 求出來的 eigenvector 是直的
-            % 所以我們資料用成橫的，為了要相乘
-            FFACE((k - 1) * withinsample + (m + 1) / 2, :) = matchtempF;
-        end
-    end
+    FFACE = readImage(imageHeight, imageWidth, people, withinsample, startFrom);
     % output 1 * 1024
     zeromeanTotalFACE = calculateZeroMean(FFACE);
 
