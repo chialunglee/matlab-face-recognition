@@ -1,4 +1,4 @@
-function [FFACE, PCA, pcaTotalFACE, tempSSW, finalEigVector, finalEigValue] = PCALDA_Train()
+function [FFACE, PCA, pcaTotalFACE, tempSSW, finalEigVector, finalEigValue, allGroupMean, projectPCA] = PCALDA_Train()
     % 有 40 個人
     people = 40;
     % 每個樣本取 5
@@ -62,8 +62,8 @@ function [FFACE, PCA, pcaTotalFACE, tempSSW, finalEigVector, finalEigValue] = PC
         tempSSW = tempSSW + (pcaTotalFACE(i:1:i + withinsample - 1, :)' * pcaTotalFACE(i:1:i + withinsample - 1, :));
     end
 
-    allGroupMean = calculateZeroMean(allGroupMean);
-    SSB = allGroupMean' * allGroupMean;
+    zeroAllGroupMean = calculateZeroMean(allGroupMean);
+    SSB = zeroAllGroupMean' * zeroAllGroupMean;
 
     finalCov = inv(tempSSW) * SSB;
 
